@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel="stylesheet" href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css"> <!-- load bootstrap css -->
+	  <link rel="stylesheet" href="http://libs.baidu.com/fontawesome/4.0.3/css/font-awesome.min.css"> <!-- load fontawesome -->
+    <style>
+      .header,.newItem,.new-info{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .new-info img{
+        width: 100px;
+        margin-right: 10px;
+        border-radius: 5px;
+      }
+      .btn-nav{
+        margin-bottom: 10px;
+      }
+      .nulldata{
+        text-align: center;
+        padding:50px 0;
+        font-size:16px;
+        color:#999;
+      }
+    </style>
+  </head>
+  <body>
+    <% include header%>
+
+    <div class="container">
+      <div class="btn-nav">
+        <button type="button" class="btn btn-primary btn-sm" onclick="addNews()">新增</button>
+      </div>
+      <ul class="list-group">
+        <%if(newList.length > 0){%>
+            <%newList.forEach(function(item){%>
+            <li class="list-group-item newItem">
+              <div class="new-info">
+                <img src="<%- item.img %>" alt="">
+                <div><%- item.title %></div>
+              </div>
+              <div>
+                <a href="/news?id=<%- item.id %>" class="btn btn-primary btn-sm active" role="button">详情</a>
+                <button type="button" class="btn btn-warning btn-sm" onclick="updateFn('<%- item.id %>')">修改</button>
+                <button type="button" class="btn btn-danger btn-sm" onclick="deleteFn('<%- item.id %>')">删除</button>
+              </div>
+            </li>
+          <%})%>
+        <%} else {%>
+          <div class="nulldata">暂无数据</div>
+        <% } %>
+      </ul>
+    </div>
+
+    <!---新增 修改--->
+    <div class="modal fade" tabindex="-1" role="dialog" id="addModal">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title"></h4>
+          </div>
+          <div class="modal-body" id="modal-body">
+            <div class="form-group">
+              <label for="exampleInputEmail1">新闻标题</label>
+              <input type="email" class="form-control" id="newtitle" name="title" placeholder="请输入新闻标题">
+            </div>
+            <div class="form-group">
+              <label for="exampleInputPassword1">新闻内容</label>
+              <textarea class="form-control" rows="3" id="newcontent" name="content"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+            <button type="button" class="btn btn-primary" id="submit">确定</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script src="http://libs.baidu.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+      //显示新增
+      function addNews(){
+        $('#addModal').modal('show')
+        $('.modal-title').text('新增新闻')
+      }
+      //删除新闻
+      function deleteFn(id){
+          $.ajax({
+            url: "/delete",
+            type: "delete",
+            data: {id},
+            success:function(res){
+              if(res.data){
+                window.location.reload()
+              }
+            },
+            error:function(err){
+              console.log(err)
+            }
+          })
+        }
+        //修改新闻
+        let curNewsId = null // 当前要修改的新闻id
+        function updateFn(id){
+          curNewsId = id
+          $('#addModal').modal('show')
+          $('.modal-title').text('修改新闻')
+          $.ajax({
+            url:'/findnews',
+            type:'get',
+            data:{id},
+            success:function(res){
+              console.log(res)
+              if(res.data){
+                $('#newtitle').val(res.data.title)
+                $('#newcontent').val(res.data.content)
+              }
+            },
+            error:function(err){
+              console.log(err)
+            }
+          })
+        }
+      $(function(){
+        //添加新闻
+        $("#submit").on('click',function(){
+          var errorTip = '<div id="errorTip" class="alert alert-warning"></div> ';
+          var successTip = '<div id="successTip" class="alert alert-success"></div> ';
+            $("#errorTip,#successTip").remove();
+          var title = $.trim($('#newtitle').val()),
+          content = $.trim($('#newcontent').val())
+          if(title.length == 0){
+              $("#modal-body").append(errorTip); 
+              $("#errorTip").text('新闻标题不能为空')              
+              $('#newtitle').focus();
+              return false;
+          }
+          if(content.length == 0){
+              $("#modal-body").append(errorTip); 
+              $("#errorTip").text('新闻内容不能为空')              
+              $('#newcontent').focus();
+              return false;
+          }
+          const data = {title,content}
+          if(curNewsId){
+            data.id = curNewsId
+          }
+          if($('.modal-title').text() == '修改新闻'){
+            $.ajax({
+                url: "/update",
+                type: "put",
+                data: data,
+                success: function(res) {
+                    console.log(res)
+                    if(res.data){
+                      window.location.reload()
+                    }
+                },
+                error: function(err) {
+                  console.log(err)
+                  $("#modal-body").append(errorTip); 
+                  $("#errorTip").text('添加失败') 
+                }
+            })
+          } else {
+            $.ajax({
+                url: "/add",
+                type: "post",
+                data: data,
+                success: function(res) {
+                    console.log(res)
+                    if(res.data){
+                    window.location.reload()
+                    }
+                },
+                error: function(err) {
+                  console.log(err)
+                  $("#modal-body").append(errorTip); 
+                  $("#errorTip").text('添加失败') 
+                }
+            })
+          }
+          
+        })
+      })
+    </script>
+  </body>
+</html>

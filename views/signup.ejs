@@ -1,0 +1,115 @@
+<!-- views/signup.ejs -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%-title%></title>
+    <link
+      rel="stylesheet"
+      href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css"
+    />
+    <!-- load bootstrap css -->
+    <link
+      rel="stylesheet"
+      href="http://libs.baidu.com/fontawesome/4.0.3/css/font-awesome.min.css"
+    />
+    <!-- load fontawesome -->
+    <style>
+      body {
+        padding-top: 80px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container" class="container">
+      <div class="col-sm-6 col-sm-offset-3">
+        <h1><span class="fa fa-sign-in"></span> Signup</h1>
+        <% if(locals.success){%>
+        <div id="alt_sucess" class="alert alert-success"><%- success %></div>
+        <%}%> <%if(locals.error){%>
+        <div id="alt_danger" class="alert alert-danger"><%- error %></div>
+        <%}%>
+        <!-- LOGIN FORM -->
+        <form action="" method="post">
+          <div class="form-group">
+            <label>Username</label>
+            <input
+              type="text"
+              class="form-control"
+              id="username"
+              name="username"
+            />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+            />
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="repassword"
+              name="repassword"
+            />
+          </div>
+
+          <button id="btnSub" type="submit" class="btn btn-primary btn-lg">
+            Signup
+          </button>
+        </form>
+
+        <hr />
+
+        <p>Already have an account? <a href="/login">Login</a></p>
+        <p>Or go <a href="/">home</a>.</p>
+      </div>
+    </div>
+
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script type="text/javascript">
+      $(function () {
+        //禁用“确认重新提交表单”
+        window.history.replaceState(null, null, window.location.href);
+        $('#btnSub').on('click', function () {
+          var usernameVal = $.trim($('#username').val()),
+            passwordVal = $.trim($('#password').val()),
+            repasswordVal = $.trim($('#repassword').val()),
+            errorTip = '<div id="errorTip" class="alert alert-warning"></div> ';
+          $('#errorTip').remove();
+          if (usernameVal.length == 0) {
+            $('#container').prepend(errorTip);
+            $('#errorTip').text('用户名不能为空');
+            $('#username').focus();
+            return false;
+          }
+          if (passwordVal.length == 0) {
+            $('#container').prepend(errorTip);
+            $('#errorTip').text('密码不能为空');
+            $('#password').focus();
+            return false;
+          }
+
+          if (repasswordVal.length == 0) {
+            $('#container').prepend(errorTip);
+            $('#errorTip').text('确认密码不能为空');
+            $('#repassword').focus();
+            return false;
+          }
+
+          if (passwordVal != repasswordVal) {
+            $('#container').prepend(errorTip);
+            $('#errorTip').text('两次密码不一致');
+            $('#repassword').focus();
+            return false;
+          }
+          return true;
+        });
+      });
+    </script>
+  </body>
+</html>

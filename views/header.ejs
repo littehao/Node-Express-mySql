@@ -1,0 +1,15 @@
+<div class="navbar navbar-default navbar-static-top header" style="height:80px" role="navigation">
+ <div class="container">
+   <div class="navbar-header">
+     <a href="/" class="navbar-brand">新闻管理系统</a>
+   </div>
+   <div class="navbar-collapse collapse">
+     <ul class="nav navbar-nav navbar-right">
+     <% if(locals.username){%>
+       <li><a href='/'><%-username%></a></li>
+       <li><a href='/logout'>安全退出</a></li>
+     <%}%>
+     </ul>
+   </div>
+ </div>
+</div>
